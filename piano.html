@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style type="text/css">
+        body {
+            margin: 10px;
+            background-color: yellow;
+            overflow-y: hidden;
+        }
+
+        #piano {
+            height: 100vh;
+        }
+
+        button {
+            width: 70vw;
+            height: 12vh;
+            border-radius: 2vh;
+            text-align: left;
+            font-weight: bolder;
+            margin: 0.1vh;
+        }
+
+        button span {
+            transform: rotate(90deg);
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div id="piano">
+        <script type="text/javascript">
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const keysText = ["do", "re", "mi", "fa", "so", "la", "ti"];
+            let oscillator = null; // Store the oscillator
+
+            function playFreq(frequency) {
+                stopFreq();
+                oscillator = audioContext.createOscillator();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                oscillator.connect(audioContext.destination);
+                oscillator.start();
+            }
+
+            function stopFreq() {
+                if (oscillator) {
+                    oscillator.stop();
+                    oscillator.disconnect();
+                    oscillator = null;
+                }
+            }
+
+            function genKey(id, frequency, iteration) {
+                const button = document.createElement("button");
+
+                button.addEventListener("pointerup", function () {
+                    stopFreq();
+                    button.style.backgroundColor = "white";
+                });
+
+                button.addEventListener("pointerdown", function () {
+                    button.style.backgroundColor = "blue";
+                    stopFreq();
+                    playFreq(frequency);
+                });
+
+                const span = document.createElement("span");
+                span.textContent = keysText[iteration];
+                button.appendChild(span);
+                document.getElementById("piano").appendChild(button);
+            }
+
+            // Define frequencies for notes from "do" to "ti"
+            const frequencies = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88];
+
+            // Create buttons and click event listeners dynamically for each note
+            for (let i = 0; i < frequencies.length; i++) {
+                genKey("button" + (i + 1), frequencies[i]*2, i);
+            }
+        </script>
+    </div>
+</body>
+</html>
